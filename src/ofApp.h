@@ -16,6 +16,7 @@
 #include "Swarm.h"
 #include "Grid.h"
 #include "OrthoCamera.h"
+#include "ofxGui.h"
 
 #define N_CAMERAS 4
 
@@ -68,4 +69,6 @@ class ofApp : public ofBaseApp {
     
     void drawInteractionArea();
     bool bShowHelp;
+    
+    ofxGui gui;
 };

@@ -272,16 +272,16 @@ void ofApp::drawScene(int iCameraDraw){
 //
 //
 //	//--
-//	// Draw mouse ray
-//
-//	// Draw the ray if ofEasyCam is in main view,
-//	//  and we're not currently drawing in that view
-//	if(iMainCamera == 0 && iCameraDraw != 0){
-//		ofPushStyle();
-//		ofSetColor(100, 100, 255);
-//		ofDrawLine(ray[0], ray[1]);
-//		ofPopStyle();
-//	}
+	// Draw mouse ray
+
+	// Draw the ray if ofEasyCam is in main view,
+	//  and we're not currently drawing in that view
+	if(iMainCamera == 0 && iCameraDraw != 0){
+		ofPushStyle();
+		ofSetColor(100, 100, 255);
+		ofDrawLine(ray[0], ray[1]);
+		ofPopStyle();
+	}
 
 	//
 	//--

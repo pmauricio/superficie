@@ -61,6 +61,7 @@ void swarm::customDraw(){
 	update();
 
     ofMesh mesh;
+    mesh.setMode(OF_PRIMITIVE_TRIANGLES);
     int height=100;
     int width=100;
 //   
@@ -77,7 +78,8 @@ void swarm::customDraw(){
 //            cout <<  particles[y*100+x].position;
 //            cout <<"\n";
             mesh.addVertex(particles[y*100+x].position); // make a new vertex
-            mesh.addColor(particles[y*100+x].color);  // add a color at that vertex
+//            mesh.addColor(particles[y*100+x].color);  // add a color at that vertex
+         mesh.addColor(250);
         }
     }
     // now it's important to make sure that each vertex is correctly connected with the
@@ -95,7 +97,8 @@ void swarm::customDraw(){
     }
 
     
-    mesh.draw();
+    mesh.drawWireframe();
+    
     //--
 	// Draw particles
 
@@ -138,63 +141,73 @@ void swarm::update(){
 	// Calculate time past per frame
 	float dt = ofGetLastFrameTime();
 
-    
+    int width = 100;
+    int height = 100;
+    for(int y = 0 ; y<height ; y++){
+        for(int x = 0 ; x<width ; x++){
+       
+            t = (t + dt/10000);
+//            cout<< ((float)x)/10<<"\n";
+            particles[x+y*width].position.y =  ofNoise(((float)x)/50+t,((float)y)/10)* _positionDispersion*7;
+//particles[x+y*widht].ve
+            
+    }
     
 	// Update positions, velocities
-	for(unsigned int i = 0; i < particles.size(); i++){
-
-		// -----------
-		//
-		//	MOTION MATHS
-		//
-		//		'Simple Harmonic Motion' + a little extra
-		// ----
-		//
-
-		// [1] apply velocity to postion
-		//  (i.e. integrate velocity)
-		//
-		//  v = dx / dt (*)
-		//  x = x + dx [every frame]
-		//
-		// therefore
-		//  x = x + v * dt (*)
-		//
-
-		// (velcotity is taken from previous frame)
-//		particles[i].position += particles[i].velocity * dt;
-        t = (t + dt/100000);
-//        particles[i].position.y = ofNoise(i+t,i+t)* _positionDispersion*7;
-        
-		// [2] apply spring force to velocity
-		//  (i.e. integrate acceleration)
-		//
-		//  a = -k * x (this is the shm restoring force, aka spring force)
-		//  a = dv / dt
-		//
-		// therefore from (*)s above
-		//  (v = v + dv)
-		//
-		//  v = v + (dt * a)
-		//  v = v + (dt * -k * x)
-		//
-//		particles[i].velocity += -SPRING_CONSTANT * particles[i].position * dt;
+//	for(unsigned int i = 0; i < particles.size(); i++){
 //
+//		// -----------
+//		//
+//		//	MOTION MATHS
+//		//
+//		//		'Simple Harmonic Motion' + a little extra
+//		// ----
+//		//
 //
-//		// [3] to get a super simple kind of 'flocking' behaviour
-//		//  we add a second spring force to velocity relative
-//		//  to the position of the light
-//		// NOTICE: THIS ISN'T REAL FLOCKING!
-////		particles[i].velocity += -SPRING_CONSTANT * (particles[i].position - light.getPosition()) * dt;
+//		// [1] apply velocity to postion
+//		//  (i.e. integrate velocity)
+//		//
+//		//  v = dx / dt (*)
+//		//  x = x + dx [every frame]
+//		//
+//		// therefore
+//		//  x = x + v * dt (*)
+//		//
 //
+//		// (velcotity is taken from previous frame)
+////		particles[i].position += particles[i].velocity * dt;
+//        t = (t + dt/100000);
+////        particles[i].position.y = ofNoise(i+t,i+t)* _positionDispersion*7;
+//        
+//		// [2] apply spring force to velocity
+//		//  (i.e. integrate acceleration)
+//		//
+//		//  a = -k * x (this is the shm restoring force, aka spring force)
+//		//  a = dv / dt
+//		//
+//		// therefore from (*)s above
+//		//  (v = v + dv)
+//		//
+//		//  v = v + (dt * a)
+//		//  v = v + (dt * -k * x)
+//		//
+////		particles[i].velocity += -SPRING_CONSTANT * particles[i].position * dt;
+////
+////
+////		// [3] to get a super simple kind of 'flocking' behaviour
+////		//  we add a second spring force to velocity relative
+////		//  to the position of the light
+////		// NOTICE: THIS ISN'T REAL FLOCKING!
+//////		particles[i].velocity += -SPRING_CONSTANT * (particles[i].position - light.getPosition()) * dt;
+////
+////
+////		// [4] Force a maximum velocity
+////		if(particles[i].velocity.length() > MAX_VELOCITY){
+////			particles[i].velocity /= particles[i].velocity.length() * MAX_VELOCITY;
+////		}
 //
-//		// [4] Force a maximum velocity
-//		if(particles[i].velocity.length() > MAX_VELOCITY){
-//			particles[i].velocity /= particles[i].velocity.length() * MAX_VELOCITY;
-//		}
-
-		//
-		// -----------
-
+//		//
+//		// -----------
+//
 	}
 }
