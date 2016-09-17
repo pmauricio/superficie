@@ -12,6 +12,12 @@ float _positionDispersion;
 void swarm::init(int nParticles, float positionDispersion, float velocityDispersion){
 
     _positionDispersion = (positionDispersion);
+    
+    parameters.add(color.set("color",ofColor(127),ofColor(0,0),ofColor(255)));
+    
+    parameters.add(xSlider.set("x ",50,1,200));
+    parameters.add(ySlider.set("y ",10,1,200));
+    
 	// Check if we've already initialised
 	if(particles.size() != 0){
 		// clear out old data
@@ -23,8 +29,7 @@ void swarm::init(int nParticles, float positionDispersion, float velocityDispers
 	ofSeedRandom();
 	//
 	ofVec3f position, velocity;
-	ofColor color;
-
+	
 	for(int i = 0; i < nParticles; i++){
 //		position.x = (ofRandom(1.0f) - 0.5f)  * positionDispersion;
 //		position.y = (ofRandom(1.0f) - 0.5f)  * positionDispersion;
@@ -40,6 +45,7 @@ void swarm::init(int nParticles, float positionDispersion, float velocityDispers
 		velocity.y = (ofRandom(1.0f) - 0.5f)  * velocityDispersion;
 		velocity.z = (ofRandom(1.0f) - 0.5f)  * velocityDispersion;
 
+        ofColor color;
 		color.r = ofRandom(255.0f);
 		color.g = ofRandom(255.0f);
 		color.b = 150.0f;
@@ -54,7 +60,23 @@ void swarm::init(int nParticles, float positionDispersion, float velocityDispers
 		particles.push_back(newParticle);
 	}
 
+    gui.setup(); // most of the time you don't need a name
+    
+    //    gui.add(filled.setup("fill", true));
+    
+
+    
+    //    parameters.add(xSlider.set(" x " ,50,1,100));
+    //
+    //
+    
+    gui.setup(parameters);
+    sync.setup((ofParameterGroup&)gui.getParameter(),6666,"localhost",6667);
+    ofSetVerticalSync(true);
+    //    bHide = false;
+    
 }
+
 void swarm::customDraw(){
 	// We run the update ourselves manually. ofNode does
 	//  not do this for us.
@@ -78,9 +100,13 @@ void swarm::customDraw(){
 //            cout <<  particles[y*100+x].position;
 //            cout <<"\n";
             mesh.addVertex(particles[y*100+x].position); // make a new vertex
-//            mesh.addColor(particles[y*100+x].color);  // add a color at that vertex
-         mesh.addColor(250);
-        }
+            if(randomColor){
+            particles[y*100+x].color.a = color.get().a;            mesh.addColor(particles[y*100+x].color);
+            }else{
+            // add a color at that vertex
+         mesh.addColor(color.get());
+
+            }
     }
     // now it's important to make sure that each vertex is correctly connected with the
     // other vertices around it. This is done using indices, which you can set up like so:
@@ -97,6 +123,7 @@ void swarm::customDraw(){
     }
 
     
+    mesh.draw();
     mesh.drawWireframe();
     
     //--
@@ -107,8 +134,8 @@ void swarm::customDraw(){
 	//  light.
 	ofPushStyle();
 	light.enable();
-	light.setPosition(particles[0].position);
-
+	light.setPosition(0,0,0);
+ 
 //	for(unsigned int i = 0; i < particles.size(); i++){
 //		ofPushStyle();
 //		ofSetColor(particles[i].color);
@@ -131,14 +158,20 @@ void swarm::customDraw(){
 	ofSetColor(255, 255, 255);
 	ofDrawSphere(light.getPosition(), 1.0);
 	ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL);
-	ofDrawBitmapString(" light", particles[0].position);
+	ofDrawBitmapString(" light", light.getPosition());
 	ofPopStyle();
 }
 
+void swarm::drawGUI(){
+    gui.draw();
+    
+}
+
+
 float t = 0;
 void swarm::update(){
-
-	// Calculate time past per frame
+//    sync.update();
+ 	// Calculate time past per frame
 	float dt = ofGetLastFrameTime();
 
     int width = 100;
@@ -148,7 +181,7 @@ void swarm::update(){
        
             t = (t + dt/10000);
 //            cout<< ((float)x)/10<<"\n";
-            particles[x+y*width].position.y =  ofNoise(((float)x)/50+t,((float)y)/10)* _positionDispersion*7;
+            particles[x+y*width].position.y = ( ofNoise(((float)x)/xSlider+t,((float)y)/(10+ySlider))* _positionDispersion*7);
 //particles[x+y*widht].ve
             
     }

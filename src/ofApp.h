@@ -17,6 +17,7 @@
 #include "Grid.h"
 #include "OrthoCamera.h"
 #include "ofxGui.h"
+#include "ofxOscParameterSync.h"
 
 #define N_CAMERAS 4
 
@@ -40,6 +41,8 @@ class ofApp : public ofBaseApp {
 		void mouseEntered(int x, int y);
 		void mouseExited(int x, int y);
 		void windowResized(int w, int h);
+    
+
 
 		//cameras (all these inherit from ofCamera)
 		ofEasyCam camEasyCam;
@@ -69,6 +72,7 @@ class ofApp : public ofBaseApp {
     
     void drawInteractionArea();
     bool bShowHelp;
+
+
     
-    ofxGui gui;
-};
+ };

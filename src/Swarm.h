@@ -1,5 +1,7 @@
 #pragma once
 #include "ofMain.h"
+#include "ofxGui.h"
+#include "ofxOscParameterSync.h"
 
 #define SPRING_CONSTANT 0.1f
 #define MAX_VELOCITY 30.0f
@@ -10,7 +12,8 @@ class swarm : public ofNode {
 	struct particle {
 		ofVec3f position;
 		ofVec3f velocity;
-		ofColor color;
+        ofColor color;
+      
 	};
 
 	public:
@@ -19,11 +22,23 @@ class swarm : public ofNode {
 		void customDraw();
 		ofLight light;
 
+        void drawGUI();
+    ofxPanel gui;
+    	vector<particle>particles;
+    
+    ofParameter<int> number;
+    ofParameter<bool> check;
+        ofParameter<bool> randomColor;
+    ofParameter<float> xSlider;
+    ofParameter<float> ySlider;
+    ofParameterGroup parameters;
+    ofParameter<ofColor> color;
+    ofxOscParameterSync sync;
 	protected:
 		// we call this update function ourselves
 		//  at the beginning of customDraw
 		void update();
 
 		// objects
-		vector<particle>particles;
+	
 };

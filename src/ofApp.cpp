@@ -31,16 +31,20 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-
+//
 	ofSetVerticalSync(true);
 	ofBackground(70, 70, 70);
 	ofEnableSmoothing();
 	ofEnableDepthTest();
-
-    
-    // this sets the camera's distance from the object
-    cam.setDistance(100);
-    
+//
+//    
+  
+    ofVec3f v1;
+//        cam.setPosition(v1);
+//
+//    cam.position.y = 1072.74
+//    
+//    cam.position.z = 2461.54;
     ofSetCircleResolution(64);
     bShowHelp = true;
 
@@ -92,10 +96,26 @@ void ofApp::setup(){
 
 	// swarm is a custom ofNode in this example (see Swarm.h / Swarm.cpp)
 	nodeSwarm.init(10000, 50, 10);
-
+    // this sets the camera's distance from the object
+    cam.setDistance(100);
+    cam.setTarget(nodeSwarm.particles[nodeSwarm.particles.size()/2].position);
 	//
 	//--
+//    gui.setup("contorls");
+//    gui.add(xSlider.setup("xasdasdasda", 1,0 , 500));
+//
+//  gui.add(ySlider.setup("asdasdax", 1,0 , 500));
+//    gui.add(xSlider.setup("x", 1,0 , 5));
+
+    
+    
+    // we add this listener before setting up so the initial circle resolution is correct
+//    circleResolution.addListener(this, &ofApp::circleResolutionChanged);
+//    ringButton.addListener(this, &ofApp::ringButtonPressed);
+//    
+    
 }
+
 
 //--------------------------------------------------------------
 void ofApp::setupViewports(){
@@ -133,10 +153,15 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
+//
+    ofEnableDepthTest();
+
     cam.begin();
-    drawScene(0);
+  
+    drawScene(1);
     cam.end();
+    ofDisableDepthTest();
+    nodeSwarm.drawGUI();
 //    
 //    string msg = string("Using mouse inputs to navigate (press 'c' to toggle): ") + (cam.getMouseInputEnabled() ? "YES" : "NO");
 //    msg += string("\nShowing help (press 'h' to toggle): ")+ (bShowHelp ? "YES" : "NO");
@@ -147,14 +172,17 @@ void ofApp::draw(){
 //        msg += "move over XY axes (truck and boom).\n\n";
 //        msg += "RIGHT MOUSE BUTTON:\n";
 //        msg += "move over Z axis (dolly)";
+//        
 //    }
 //    msg += "\n\nfps: " + ofToString(ofGetFrameRate(), 2);
+//    msg += "\n " +ofToString( cam.getPosition().x )+
+//    " " +ofToString(cam.getPosition().y )+" "+ofToString(cam.getPosition().z);
 //    ofDrawBitmapStringHighlight(msg, 10, 20);
 //
-//
-//	// restore the GL depth function
-//	glDepthFunc(GL_LESS);
-//	ofPopStyle();
+
+	// restore the GL depth function
+	glDepthFunc(GL_LESS);
+	ofPopStyle();
 
 	//
 	//--
@@ -162,7 +190,10 @@ void ofApp::draw(){
 
 void ofApp::drawScene(int iCameraDraw){
 
-	nodeSwarm.draw();
+    nodeSwarm.light.setPosition(cam.getPosition());
+
+    nodeSwarm.draw();
+    
 //	nodeGrid.draw();
 
 //	//--
@@ -180,98 +211,98 @@ void ofApp::drawScene(int iCameraDraw){
 //	//	camera as 'the view frustum'.
 //
 //
-//	// First check if we're already drawing the view through the easycam
-//	// If so, don't draw the frustum preview.
-//	if(iCameraDraw != 0){
-//
-//		ofPushStyle();
-//		ofPushMatrix();
-//
-//		//--
-//		// Create transform for box->frustum
-//
-//		// In 'camera space' the bounds of
-//		//  the view are defined by a box
-//		//  with bounds -1->1 in each axis
-//		//
-//		// To convert from camera to world
-//		//  space, we multiply by the inverse
-//		//  camera matrix of the camera, i.e
-//		//  inverse of the ViewProjection
-//		//  matrix.
-//		//
-//		// By applying this transformation
-//		//  our box in camera space is
-//		//  transformed into a frustum in
-//		//  world space.
-//		//
-//
-//		// The camera's matricies are dependant on
-//		//  the aspect ratio of the viewport.
-//		//  (Which is why we use the viewport as
-//		//  an argument when we begin the camera.
-//		//
-//		// If this camera is fullscreen we'll use
-//		//   viewMain, else we'll use viewGrid[0]
-//		ofRectangle boundsToUse;
-//		if(iMainCamera == 0){
-//			boundsToUse = viewMain;
-//		}
-//		else{
-//			boundsToUse = viewGrid[0];
-//		}
-//
-//		// Now lets get the inverse ViewProjection
-//		//  for the camera
-//		ofMatrix4x4 inverseCameraMatrix;
-//		inverseCameraMatrix.makeInvertOf(camEasyCam.getModelViewProjectionMatrix(boundsToUse));
-//
-//		// By default, we can say
-//		//	'we are drawing in world space'
-//		//
-//		// The camera matrix performs
-//		//	world->camera
-//		//
-//		// The inverse camera matrix performs
-//		//	camera->world
-//		//
-//		// Our box is in camera space, if we
-//		//	want to draw that into world space
-//		//	we have to apply the camera->world
-//		//	transformation.
-//		//
-//
-//		// This syntax is a little messy.
-//		// What it's saying is, send the data
-//		//  from the inverseCameraMatrix object
-//		//  to OpenGL, and apply that matrix to
-//		//  the current OpenGL transform
-//		ofMultMatrix( inverseCameraMatrix );
-//
-//		//
-//		//--
-//
-//
-//		//--
-//		// Draw box in camera space
-//		// (i.e. frustum in world space)
-//
-//		ofNoFill();
-//		// i.e. a box -1, -1, -1 to +1, +1, +1
-//		ofDrawBox(0, 0, 0, 2.0f);
-//		//
-//		//--
-//
-//		ofPopStyle();
-//		ofPopMatrix();
-//	}
-//
-//	//
-//	//--
-//
-//
-//
-//	//--
+	// First check if we're already drawing the view through the easycam
+	// If so, don't draw the frustum preview.
+	if(iCameraDraw != 0){
+
+		ofPushStyle();
+		ofPushMatrix();
+
+		//--
+		// Create transform for box->frustum
+
+		// In 'camera space' the bounds of
+		//  the view are defined by a box
+		//  with bounds -1->1 in each axis
+		//
+		// To convert from camera to world
+		//  space, we multiply by the inverse
+		//  camera matrix of the camera, i.e
+		//  inverse of the ViewProjection
+		//  matrix.
+		//
+		// By applying this transformation
+		//  our box in camera space is
+		//  transformed into a frustum in
+		//  world space.
+		//
+
+		// The camera's matricies are dependant on
+		//  the aspect ratio of the viewport.
+		//  (Which is why we use the viewport as
+		//  an argument when we begin the camera.
+		//
+		// If this camera is fullscreen we'll use
+		//   viewMain, else we'll use viewGrid[0]
+		ofRectangle boundsToUse;
+		if(iMainCamera == 0){
+			boundsToUse = viewMain;
+		}
+		else{
+			boundsToUse = viewGrid[0];
+		}
+
+		// Now lets get the inverse ViewProjection
+		//  for the camera
+		ofMatrix4x4 inverseCameraMatrix;
+		inverseCameraMatrix.makeInvertOf(camEasyCam.getModelViewProjectionMatrix(boundsToUse));
+
+		// By default, we can say
+		//	'we are drawing in world space'
+		//
+		// The camera matrix performs
+		//	world->camera
+		//
+		// The inverse camera matrix performs
+		//	camera->world
+		//
+		// Our box is in camera space, if we
+		//	want to draw that into world space
+		//	we have to apply the camera->world
+		//	transformation.
+		//
+
+		// This syntax is a little messy.
+		// What it's saying is, send the data
+		//  from the inverseCameraMatrix object
+		//  to OpenGL, and apply that matrix to
+		//  the current OpenGL transform
+		ofMultMatrix( inverseCameraMatrix );
+
+		//
+		//--
+
+
+		//--
+		// Draw box in camera space
+		// (i.e. frustum in world space)
+
+		ofNoFill();
+		// i.e. a box -1, -1, -1 to +1, +1, +1
+		ofDrawBox(0, 0, 0, 2.0f);
+		//
+		//--
+
+		ofPopStyle();
+		ofPopMatrix();
+	}
+
+	//
+	//--
+
+
+
+	//--
 	// Draw mouse ray
 
 	// Draw the ray if ofEasyCam is in main view,
@@ -300,7 +331,7 @@ void ofApp::updateMouseRay(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    cout << " key "+ ofToString(key);
 	if(key >= '1' && key <= '4'){
 		iMainCamera = key - '1';
 	}
