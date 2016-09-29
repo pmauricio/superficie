@@ -34,6 +34,10 @@ void ofApp::setup(){
 //
 	ofSetVerticalSync(true);
 	ofBackground(70, 70, 70);
+//    ofSetBackgroundAuto(false);
+//    ofBackground(255,255,255);
+    ofEnableAlphaBlending();
+    
 	ofEnableSmoothing();
 	ofEnableDepthTest();
 //
@@ -114,6 +118,20 @@ void ofApp::setup(){
 //    ringButton.addListener(this, &ofApp::ringButtonPressed);
 //    
     
+    // setup a server with default options on port 9092
+    // - pass in true after port to set up with SSL
+    //bSetup = server.setup( 9093 );
+    
+    
+    //WEBSOCKET
+    ofxLibwebsockets::ServerOptions options = ofxLibwebsockets::defaultServerOptions();
+    options.port = 9092;
+    options.bUseSSL = false; // you'll have to manually accept this self-signed cert if 'true'!
+    bSetup = server.setup( options );
+    
+    // this adds your app as a listener for the server
+    server.addListener(this);
+    //WEBSOCKET
 }
 
 
@@ -154,15 +172,27 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 //
+    
+    if ( bSetup ){
+        ofDrawBitmapString("WebSocket server setup at "+ofToString( server.getPort() ) + ( server.usingSSL() ? " with SSL" : " without SSL"), 20, 20);
+    }
+    
+    
     ofEnableDepthTest();
 
     cam.begin();
   
     drawScene(1);
     cam.end();
+    
+    ofSetColor(70,255,0,125);
+    ofFill();
+
     ofDisableDepthTest();
+    
     nodeSwarm.drawGUI();
-//    
+    ofRectangle(ofGetWidth()/2,ofGetHeight()/2,ofGetWidth(),ofGetHeight());
+//
 //    string msg = string("Using mouse inputs to navigate (press 'c' to toggle): ") + (cam.getMouseInputEnabled() ? "YES" : "NO");
 //    msg += string("\nShowing help (press 'h' to toggle): ")+ (bShowHelp ? "YES" : "NO");
 //    if (bShowHelp) {
@@ -179,7 +209,14 @@ void ofApp::draw(){
 //    " " +ofToString(cam.getPosition().y )+" "+ofToString(cam.getPosition().z);
 //    ofDrawBitmapStringHighlight(msg, 10, 20);
 //
-
+    if ( bSetup ){
+        ofDrawBitmapString("WebSocket server setup at "+ofToString( server.getPort() ) + ( server.usingSSL() ? " with SSL" : " without SSL"), 20, 20);
+        
+        ofSetColor(150);
+        ofDrawBitmapString("Click anywhere to open up client example", 20, 40);
+    } else {
+        ofDrawBitmapString("WebSocket setup failed :(", 20,20);
+    }
 	// restore the GL depth function
 	glDepthFunc(GL_LESS);
 	ofPopStyle();
@@ -356,6 +393,22 @@ void ofApp::keyPressed(int key){
 			bCamParent = true;
 		}
 	}
+    
+    // do some typing!
+    if ( key != OF_KEY_RETURN ){
+        if ( key == OF_KEY_BACKSPACE ){
+            if ( toSend.length() > 0 ){
+                toSend.erase(toSend.end()-1);
+            }
+        } else {
+            toSend += key;
+        }
+    } else {
+        // send to all clients
+        server.send( toSend );
+        messages.push_back("Sent: '" + toSend + "' to "+ ofToString(server.getConnections().size())+" websockets" );
+        toSend = "";
+    }
 }
 
 //--------------------------------------------------------------
@@ -372,6 +425,12 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
+    string url = "http";
+    if ( server.usingSSL() ){
+        url += "s";
+    }
+    url += "://localhost:" + ofToString( server.getPort() );
+   // ofLaunchBrowser(url);
 }
 
 //--------------------------------------------------------------
@@ -392,4 +451,54 @@ void ofApp::mouseExited(int x, int y){
 void ofApp::windowResized(int w, int h){
 	setupViewports();
 }
+
+
+
+//--------------------------------------------------------------
+void ofApp::onConnect( ofxLibwebsockets::Event& args ){
+    cout<<"on connected"<<endl;
+}
+
+//--------------------------------------------------------------
+void ofApp::onOpen( ofxLibwebsockets::Event& args ){
+    cout<<"new connection open"<<endl;
+    messages.push_back("New connection from " + args.conn.getClientIP() + ", " + args.conn.getClientName() );
+}
+
+//--------------------------------------------------------------
+void ofApp::onClose( ofxLibwebsockets::Event& args ){
+    cout<<"on close"<<endl;
+    messages.push_back("Connection closed");
+}
+
+//--------------------------------------------------------------
+void ofApp::onIdle( ofxLibwebsockets::Event& args ){
+    cout<<"on idle"<<endl;
+}
+void ofApp::gotMessage(ofMessage msg){
+    
+}
+//--------------------------------------------------------------
+void ofApp::onMessage( ofxLibwebsockets::Event& args ){
+    cout<<"got message "<<args.message<<endl;
+    
+    // trace out string messages or JSON messages!
+    if ( !args.json.isNull() ){
+        messages.push_back("New message: " + args.json.toStyledString() + " from " + args.conn.getClientName() );
+    } else {
+        messages.push_back("New message: " + args.message + " from " + args.conn.getClientName() );
+    }
+    
+    // echo server = send message right back!
+    args.conn.send( args.message );
+}
+
+//--------------------------------------------------------------
+void ofApp::onBroadcast( ofxLibwebsockets::Event& args ){
+    cout<<"got broadcast "<<args.message<<endl;
+}
+
+//--------------------------------------------------------------
+
+
 

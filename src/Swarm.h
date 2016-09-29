@@ -33,7 +33,9 @@ class swarm : public ofNode {
     ofParameter<float> ySlider;
     ofParameterGroup parameters;
     ofParameter<ofColor> color;
+    ofParameter<int> meshMode;
     ofxOscParameterSync sync;
+    ofImage image;
 	protected:
 		// we call this update function ourselves
 		//  at the beginning of customDraw

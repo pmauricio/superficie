@@ -11,9 +11,12 @@ float _positionDispersion;
 
 void swarm::init(int nParticles, float positionDispersion, float velocityDispersion){
 
+    
+    image.load("/users/mauro/Documents/leandro.jpg");
     _positionDispersion = (positionDispersion);
     
-    parameters.add(color.set("color",ofColor(127),ofColor(0,0),ofColor(255)));
+    parameters.add(color.set("color",ofColor(127,127,127,127),ofColor(0,0),ofColor(255)));
+    parameters.add(randomColor);
     
     parameters.add(xSlider.set("x ",50,1,200));
     parameters.add(ySlider.set("y ",10,1,200));
@@ -29,14 +32,16 @@ void swarm::init(int nParticles, float positionDispersion, float velocityDispers
 	ofSeedRandom();
 	//
 	ofVec3f position, velocity;
-	
+    
+    ofPixels & pixels = image.getPixels();
+    
 	for(int i = 0; i < nParticles; i++){
 //		position.x = (ofRandom(1.0f) - 0.5f)  * positionDispersion;
 //		position.y = (ofRandom(1.0f) - 0.5f)  * positionDispersion;
 //		position.z = (ofRandom(1.0f) - 0.5f)  * positionDispersion;
  
-        position.x = (((i) % 100)* positionDispersion) ;
-        position.z = (((i)/100 )* positionDispersion);
+        position.x = (((i) % 100)* positionDispersion)+ofRandom(-positionDispersion,positionDispersion) ;
+        position.z = (((i)/100 )* positionDispersion)+ofRandom(-positionDispersion,positionDispersion) ;
 //        position.y = (ofNoise(position.x * 0.001, position.y * 0.001 ) * positionDispersion)  ;
                 position.y = (0)  ;
 
@@ -54,8 +59,34 @@ void swarm::init(int nParticles, float positionDispersion, float velocityDispers
 		particle newParticle;
 		newParticle.position = position;
 		newParticle.velocity = velocity;
-		newParticle.color = color;
+		
+        
+        int yImg = (i%100)*image.getWidth()/100;
+        int xImg = i/100*image.getHeight()/100;
+        int bytesPerPixel = 3;
+       
+        
+    
+//        mesh.getColors().resize(pixels.getWidth()*pixels.getHeight());
+//        for(auto line: pixels.getLines()){
+//            for(auto pixel: line.getPixels()){
+//                mesh.getColors()[i].set(pixel[0],pixel[1],pixel[2])
+//                i++;
+//            }
+//        }
+        int imgIndex = xImg+yImg*image.getWidth();
+        newParticle.color.set(pixels.getLine(xImg).getPixel(yImg)[0],
+                              pixels.getLine(xImg).getPixel(yImg)[1]
+                              ,pixels.getLine(xImg).getPixel(yImg)[2]);
+        
+        
+        
+//        newParticle.color.r = image.getPixels()[xImg+yImg*image.getWidth()];
+//        newParticle.color.g = image.getPixels()[xImg+yImg*image.getWidth()+image.getWidth()*image.getHeight()];
+//        newParticle.color.b = image.getPixels()[xImg+yImg*image.getWidth()+image.getWidth()*image.getHeight()*2];
 
+//        newParticle.color = color;
+        
 		// add our new particle to the vector
 		particles.push_back(newParticle);
 	}
@@ -78,7 +109,9 @@ void swarm::init(int nParticles, float positionDispersion, float velocityDispers
 }
 
 void swarm::customDraw(){
-	// We run the update ourselves manually. ofNode does
+
+    
+    // We run the update ourselves manually. ofNode does
 	//  not do this for us.
 	update();
 
@@ -91,7 +124,7 @@ void swarm::customDraw(){
 //            mesh.addVertex(particles[x].position); // make a new vertex
 //            mesh.addColor(particles[x].color);  // add a color at that vertex
 //        }
-    
+    mesh.sphere(100);
     for (int y = 0; y < height; y++){
         for (int x = 0; x<width; x++){
 //            cout << y*1000+x << " y "<< y <<" x "<<x<< " size " << particles.size();
@@ -101,12 +134,13 @@ void swarm::customDraw(){
 //            cout <<"\n";
             mesh.addVertex(particles[y*100+x].position); // make a new vertex
             if(randomColor){
-            particles[y*100+x].color.a = color.get().a;            mesh.addColor(particles[y*100+x].color);
+                particles[y*100+x].color.a = color.get().a;
+                mesh.addColor(particles[y*100+x].color);
             }else{
             // add a color at that vertex
-         mesh.addColor(color.get());
-
+                mesh.addColor(color.get());
             }
+        }
     }
     // now it's important to make sure that each vertex is correctly connected with the
     // other vertices around it. This is done using indices, which you can set up like so:
@@ -123,9 +157,17 @@ void swarm::customDraw(){
     }
 
     
+    for (int w = 0 ;w++; w<3){
+//        mesh.draw();
+//    ofTranslate(0, 10);
+    }
     mesh.draw();
     mesh.drawWireframe();
+
     
+    
+    //
+//    mesh.drawWireframe();
     //--
 	// Draw particles
 
@@ -151,8 +193,7 @@ void swarm::customDraw(){
 
 	//
 	//--
-
-
+//    image.draw(0,1000, 1000);
 
 	// Render light as white sphere
 	ofSetColor(255, 255, 255);
@@ -160,6 +201,9 @@ void swarm::customDraw(){
 	ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL);
 	ofDrawBitmapString(" light", light.getPosition());
 	ofPopStyle();
+
+
+    
 }
 
 void swarm::drawGUI(){
@@ -180,11 +224,9 @@ void swarm::update(){
         for(int x = 0 ; x<width ; x++){
        
             t = (t + dt/10000);
-//            cout<< ((float)x)/10<<"\n";
-            particles[x+y*width].position.y = ( ofNoise(((float)x)/xSlider+t,((float)y)/(10+ySlider))* _positionDispersion*7);
-//particles[x+y*widht].ve
-            
-    }
+particles[x+y*width].position.y = ( ofNoise(((float)x)/xSlider+t,((float)y)/(10+ySlider))* _positionDispersion*7);
+    //        particles[x+y*width].color.a= particles[x+y*width].position.y ;
+        }
     
 	// Update positions, velocities
 //	for(unsigned int i = 0; i < particles.size(); i++){

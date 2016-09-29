@@ -19,6 +19,11 @@
 #include "ofxGui.h"
 #include "ofxOscParameterSync.h"
 
+#include "ofxLibwebsockets.h"
+
+
+
+
 #define N_CAMERAS 4
 
 class ofApp : public ofBaseApp {
@@ -73,6 +78,22 @@ class ofApp : public ofBaseApp {
     void drawInteractionArea();
     bool bShowHelp;
 
-
+    
+    //WEBSOCKET
+    void gotMessage(ofMessage msg);
+    ofxLibwebsockets::Server server;
+    bool bSetup;
+    //queue of rec'd messages
+    vector<string> messages;
+    //string to send to clients
+    string toSend;
+    // websocket methods
+    void onConnect( ofxLibwebsockets::Event& args );
+    void onOpen( ofxLibwebsockets::Event& args );
+    void onClose( ofxLibwebsockets::Event& args );
+    void onIdle( ofxLibwebsockets::Event& args );
+    void onMessage( ofxLibwebsockets::Event& args );
+    void onBroadcast( ofxLibwebsockets::Event& args );
+    //END WEBSOKET
     
  };
