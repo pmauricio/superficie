@@ -20,7 +20,7 @@ void swarm::init(int nParticles, float positionDispersion, float velocityDispers
     
     parameters.add(xSlider.set("x ",50,1,200));
     parameters.add(ySlider.set("y ",10,1,200));
-    
+    parameters.add(meshMode.set("mesh ",1,0,6));
 	// Check if we've already initialised
 	if(particles.size() != 0){
 		// clear out old data
@@ -90,7 +90,13 @@ void swarm::init(int nParticles, float positionDispersion, float velocityDispers
 		// add our new particle to the vector
 		particles.push_back(newParticle);
 	}
-
+    meshModes[0] = OF_PRIMITIVE_TRIANGLES;
+    meshModes[1] = OF_PRIMITIVE_TRIANGLE_STRIP;
+  meshModes[2] =   OF_PRIMITIVE_TRIANGLE_FAN;
+   meshModes[3] =  OF_PRIMITIVE_LINES;
+   meshModes[4] =  OF_PRIMITIVE_LINE_STRIP;
+   meshModes[5] =  OF_PRIMITIVE_LINE_LOOP;
+    meshModes[6] =     OF_PRIMITIVE_POINTS;
     gui.setup(); // most of the time you don't need a name
     
     //    gui.add(filled.setup("fill", true));
@@ -116,7 +122,7 @@ void swarm::customDraw(){
 	update();
 
     ofMesh mesh;
-    mesh.setMode(OF_PRIMITIVE_TRIANGLES);
+    mesh.setMode( meshModes[meshMode]);
     int height=100;
     int width=100;
 //   
@@ -201,7 +207,7 @@ void swarm::customDraw(){
 	ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL);
 	ofDrawBitmapString(" light", light.getPosition());
 	ofPopStyle();
-
+    mesh.clear();
 
     
 }

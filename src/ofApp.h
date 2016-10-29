@@ -55,7 +55,8 @@ class ofApp : public ofBaseApp {
 		orthoCamera camTop;
 		orthoCamera camLeft;
 
-		//cameras have parent?
+		 
+    //cameras have parent?
 		bool bCamParent;
 
 		//camera pointers
@@ -77,7 +78,10 @@ class ofApp : public ofBaseApp {
     
     void drawInteractionArea();
     bool bShowHelp;
-
+    double alfa;
+    double beta;
+    double gama;
+    
     
     //WEBSOCKET
     void gotMessage(ofMessage msg);

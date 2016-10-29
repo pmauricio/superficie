@@ -183,9 +183,15 @@ void ofApp::draw(){
     cam.begin();
   
     drawScene(1);
+    
+    
+    
+    
     cam.end();
     
-    ofSetColor(70,255,0,125);
+    ofSetColor(70,255,0,125*alfa);
+    
+    
     ofFill();
 
     ofDisableDepthTest();
@@ -214,6 +220,9 @@ void ofApp::draw(){
         
         ofSetColor(150);
         ofDrawBitmapString("Click anywhere to open up client example", 20, 40);
+        
+        
+        ofDrawBitmapString("alfa "+ to_string(alfa)+" beta "+to_string(beta)+" gama "+ to_string(gama),20,30);
     } else {
         ofDrawBitmapString("WebSocket setup failed :(", 20,20);
     }
@@ -480,7 +489,7 @@ void ofApp::gotMessage(ofMessage msg){
 }
 //--------------------------------------------------------------
 void ofApp::onMessage( ofxLibwebsockets::Event& args ){
-    cout<<"got message "<<args.message<<endl;
+//    cout<<"got message "<<args.message<<endl;
     
     // trace out string messages or JSON messages!
     if ( !args.json.isNull() ){
@@ -490,7 +499,23 @@ void ofApp::onMessage( ofxLibwebsockets::Event& args ){
     }
     
     // echo server = send message right back!
-    args.conn.send( args.message );
+    args.conn.send("blz "+ args.message );
+    if(args.message!="" && args.message.find(";") != std::string::npos){
+      
+        vector<string> strings;
+        istringstream f(args.message);
+        string s;
+        while (getline(f, s, ';')) {
+            strings.push_back(s);
+        }
+        //ofVec3f orientation;
+        //orientation.set(::atof(strings[1].c_str()),::atof(strings[2].c_str()),::atof(strings[3].c_str()));
+        alfa = atof(strings[0].c_str());
+        beta = atof(strings[1].c_str());
+        gama = atof(strings[2].c_str());
+       
+        
+    }
 }
 
 //--------------------------------------------------------------

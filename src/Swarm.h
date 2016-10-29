@@ -43,4 +43,5 @@ class swarm : public ofNode {
 
 		// objects
 	
+    ofPrimitiveMode meshModes[7]; 
 };
